@@ -1,0 +1,11 @@
+{
+  "name": "Smart Car & Fleet Management",
+  "description": "An intelligent enterprise application for smart personal cars and B2B fleet management featuring AI receipt OCR, predictive maintenance, and real-time dash.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
