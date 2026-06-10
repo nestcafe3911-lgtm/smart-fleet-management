@@ -147,7 +147,7 @@ const INITIAL_RECORDS: RefuelingRecord[] = [
 ];
 
 // Mock data for Fleet Pool vehicles
-const FLEET_CARS: FleetVehicle[] = [
+const INITIAL_FLEET_CARS: FleetVehicle[] = [
   { id: "car1", brand: "Toyota", model: "Hilux Revo Double Cab", plate: "1ขก 1234 กทม", type: "Pickup 4-Door", status: "available", mileage: 45210, condition: "Good", imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80" },
   { id: "car2", brand: "Honda", model: "City e:HEV RS", plate: "2ขข 5678 กทม", type: "Sedan", status: "in_use", mileage: 12450, condition: "Excellent", imageUrl: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=300&q=80" },
   { id: "car3", brand: "Isuzu", model: "D-Max Spacecab", plate: "ฒศ 9012 นนท", type: "Pickup 2-Door", status: "available", mileage: 85300, condition: "Good", imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=300&q=80" },
@@ -165,6 +165,11 @@ export default function App() {
     return localStorage.getItem("smart_car_user");
   });
 
+  const [fleetCars, setFleetCars] = useState<FleetVehicle[]>(() => {
+    const saved = localStorage.getItem("smart_fleet_cars");
+    return saved ? JSON.parse(saved) : INITIAL_FLEET_CARS;
+  });
+
   const [activeBrand, setActiveBrand] = useState<CarBrand>(CAR_BRANDS[0]);
   const [activeTab, setActiveTab] = useState<"home" | "booking" | "fuel" | "maintenance">("home");
   const [activeHotspot, setActiveHotspot] = useState<"engine" | "tires" | "fuel" | null>(null);
@@ -177,6 +182,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("smart_fuel_records", JSON.stringify(records));
   }, [records]);
+
+  useEffect(() => {
+    localStorage.setItem("smart_fleet_cars", JSON.stringify(fleetCars));
+  }, [fleetCars]);
 
   // Current system clock
   const [currentTime, setCurrentTime] = useState("");
@@ -238,7 +247,7 @@ export default function App() {
   // Return Vehicle & OCR State
   const [isReturnVehicleOpen, setIsReturnVehicleOpen] = useState(false);
   const [returnForm, setReturnForm] = useState({
-    odometer: FLEET_CARS[1].mileage + 45, // Simulate current mileage roughly
+    odometer: (fleetCars[1]?.mileage || 12450) + 45, // Simulate current mileage roughly
     postTripInspection: false,
     fuelReceiptUploaded: false,
     fuelScanningStatus: "IDLE" as "IDLE" | "SCANNING" | "COMPLETED",
@@ -523,8 +532,8 @@ export default function App() {
                     {/* Car Image Header */}
                     <div className="h-32 w-full relative">
                       <img 
-                        src={FLEET_CARS[1].imageUrl} 
-                        alt={`${FLEET_CARS[1].brand} ${FLEET_CARS[1].model}`}
+                        src={(fleetCars[1] || INITIAL_FLEET_CARS[1]).imageUrl} 
+                        alt={`${(fleetCars[1] || INITIAL_FLEET_CARS[1]).brand} ${(fleetCars[1] || INITIAL_FLEET_CARS[1]).model}`}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
@@ -539,15 +548,15 @@ export default function App() {
                     <div className="px-5 pb-5 pt-2 relative z-10">
                       <div className="flex justify-between items-start mb-5">
                          <div>
-                            <h4 className="text-lg font-black text-slate-100 tracking-tight font-display">{FLEET_CARS[1].brand} {FLEET_CARS[1].model}</h4>
-                            <span className="text-xs text-slate-400">{FLEET_CARS[1].type}</span>
+                            <h4 className="text-lg font-black text-slate-100 tracking-tight font-display">{(fleetCars[1] || INITIAL_FLEET_CARS[1]).brand} {(fleetCars[1] || INITIAL_FLEET_CARS[1]).model}</h4>
+                            <span className="text-xs text-slate-400">{(fleetCars[1] || INITIAL_FLEET_CARS[1]).type}</span>
                          </div>
                       </div>
                       
                       <div className="bg-slate-950/80 rounded-2xl p-3 border border-slate-800/60 flex justify-between items-center mb-4 relative z-10 shadow-inner">
                          <div className="font-mono pl-1 text-left w-full">
                             <span className="text-[9px] text-slate-500 block leading-none mb-1.5 uppercase tracking-wider">ทะเบียนรถ</span>
-                            <strong className="text-xs text-slate-200">{FLEET_CARS[1].plate}</strong>
+                            <strong className="text-xs text-slate-200">{(fleetCars[1] || INITIAL_FLEET_CARS[1]).plate}</strong>
                          </div>
                          <div className="w-px h-8 bg-slate-800 mx-2" />
                          <div className="font-mono pr-1 text-right w-full">
@@ -595,7 +604,7 @@ export default function App() {
                 </div>
                 
                 <div className="space-y-3">
-                  {FLEET_CARS.map(car => (
+                  {fleetCars.map(car => (
                     <div key={car.id} className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3 relative overflow-hidden group">
                       <div className={`w-1 shrink-0 absolute left-0 top-0 bottom-0 ${
                         car.status === 'available' ? 'bg-emerald-500 text-emerald-400' :
@@ -864,7 +873,7 @@ export default function App() {
                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-8 md:w-64 md:h-12 border-2 border-cyan-900/50 rounded-[100%] rounded-t-none bg-cyan-950/30 blur-sm transform scale-y-50" />
                      
                      <img 
-                       src={FLEET_CARS[1].imageUrl} 
+                       src={(fleetCars[1] || INITIAL_FLEET_CARS[1]).imageUrl} 
                        className="w-full h-auto object-cover opacity-80 mix-blend-screen drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]" 
                        style={{ filter: 'grayscale(100%) sepia(100%) hue-rotate(150deg) saturate(300%) contrast(1.2)' }}
                        referrerPolicy="no-referrer"
@@ -1319,15 +1328,15 @@ export default function App() {
                   {/* Vehicle Details */}
                   <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center gap-4">
                     <img 
-                      src={FLEET_CARS[1].imageUrl} 
+                      src={(fleetCars[1] || INITIAL_FLEET_CARS[1]).imageUrl} 
                       className="w-16 h-16 object-cover rounded-xl shadow-md border border-slate-800 block shrink-0" 
                       referrerPolicy="no-referrer"
                     />
                     <div>
-                      <h3 className="font-black text-sm text-slate-100 tracking-tight">{FLEET_CARS[1].brand} {FLEET_CARS[1].model}</h3>
-                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5 uppercase tracking-wide">{FLEET_CARS[1].type}</span>
+                      <h3 className="font-black text-sm text-slate-100 tracking-tight">{(fleetCars[1] || INITIAL_FLEET_CARS[1]).brand} {(fleetCars[1] || INITIAL_FLEET_CARS[1]).model}</h3>
+                      <span className="text-[10px] font-mono text-slate-400 block mt-0.5 uppercase tracking-wide">{(fleetCars[1] || INITIAL_FLEET_CARS[1]).type}</span>
                       <span className="text-[11px] font-bold text-slate-300 mt-1.5 block bg-slate-900 px-2 py-0.5 rounded-md inline-block border border-slate-800">
-                        {FLEET_CARS[1].plate}
+                        {(fleetCars[1] || INITIAL_FLEET_CARS[1]).plate}
                       </span>
                     </div>
                   </div>
@@ -1870,7 +1879,7 @@ export default function App() {
 
         {/* Admin Dashboard Report on Desktop (Side-by-side) */}
         <div className="hidden xl:flex flex-1 w-full h-full max-h-[880px] z-10">
-          <TripSummaryReport fleetCars={FLEET_CARS} records={records} brandColor={activeBrand.brandColor} />
+          <TripSummaryReport fleetCars={fleetCars} onUpdateFleetCars={setFleetCars} records={records} brandColor={activeBrand.brandColor} />
         </div>
 
       </div>
